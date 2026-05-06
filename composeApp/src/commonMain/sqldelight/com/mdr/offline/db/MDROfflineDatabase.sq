@@ -1,0 +1,155 @@
+import kotlin.Boolean;
+import kotlin.ByteArray;
+import kotlin.String;
+import kotlin.collections.List;
+
+CREATE TABLE FetchedManga (
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    author TEXT NOT NULL,
+    coverImageUrl TEXT NOT NULL,
+    originalLanguage TEXT NOT NULL,
+    status TEXT NOT NULL,
+    year TEXT NOT NULL,
+    state TEXT NOT NULL,
+    format TEXT NOT NULL,
+    publicationDemographic TEXT NOT NULL,
+    contentRating TEXT NOT NULL,
+    genres TEXT AS List<String> NOT NULL
+);
+
+insertFetchedManga:
+INSERT OR REPLACE INTO FetchedManga(id, title, description, author, coverImageUrl, originalLanguage, status, year, state, format, publicationDemographic, contentRating, genres)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+selectFetchedMangas:
+SELECT FetchedManga.*
+FROM FetchedManga;
+
+removeFetchedMangas:
+DELETE FROM FetchedManga;
+
+CREATE TABLE Tokens (
+    access_token TEXT NOT NULL,
+    refresh_token TEXT NOT NULL
+);
+
+insertTokens:
+INSERT INTO Tokens(access_token, refresh_token)
+VALUES(?, ?);
+
+selectTokens:
+SELECT Tokens.* FROM Tokens;
+
+removeTokens:
+DELETE FROM Tokens;
+
+
+
+-- Downloads
+
+CREATE TABLE DownloadedManga (
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    author TEXT NOT NULL,
+    coverImage BLOB NOT NULL,
+    originalLanguage TEXT NOT NULL,
+    status TEXT NOT NULL,
+    year TEXT NOT NULL,
+    state TEXT NOT NULL,
+    format TEXT NOT NULL,
+    publicationDemographic TEXT NOT NULL,
+    contentRating TEXT NOT NULL,
+    genres TEXT AS List<String> NOT NULL,
+    lastReadChapter TEXT,
+    downloadedWholeManga INTEGER AS Boolean DEFAULT 0 NOT NULL
+);
+
+CREATE TABLE DownloadedChapter (
+    combinedId TEXT NOT NULL PRIMARY KEY, -- combinedId = mangaId + chapterId, unique for every chapter
+    mangaId TEXT NOT NULL,
+    id TEXT NOT NULL,
+    title TEXT,
+    volume TEXT,
+    chapter TEXT NOT NULL,
+    scanlationGroup TEXT NOT NULL,
+    pageNumbers INTEGER NOT NULL,
+    imagesPath TEXT AS List<String> NOT NULL,
+    lastReadPage INTEGER NOT NULL DEFAULT 1,
+    read INTEGER AS Boolean NOT NULL DEFAULT 0,
+    filesDownloaded INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+insertDownloadedManga:
+INSERT OR REPLACE INTO DownloadedManga(id, title, description, author, coverImage, originalLanguage, status, year, state, format, publicationDemographic, contentRating, genres)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+insertDownloadedChapter:
+INSERT OR REPLACE INTO DownloadedChapter(combinedId, mangaId, id, title, volume, chapter, scanlationGroup, pageNumbers, imagesPath)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+selectDownloadedMangas:
+SELECT DownloadedManga.*
+FROM DownloadedManga;
+
+selectDownloadedMangaById:
+SELECT DownloadedManga.* FROM DownloadedManga
+WHERE id = ?;
+
+selectDownloadedMangaDownload:
+SELECT DownloadedManga.downloadedWholeManga FROM DownloadedManga
+WHERE id = ?;
+
+updateDownloadedMangaDownload:
+UPDATE DownloadedManga
+SET downloadedWholeManga = ?
+WHERE id = ?;
+
+selectLastReadChapter:
+SELECT DownloadedManga.lastReadChapter FROM DownloadedManga
+WHERE id = ?;
+
+updateLastReadChapter:
+UPDATE DownloadedManga
+SET lastReadChapter = ?
+WHERE id = ?;
+
+selectDownloadedChapters:
+SELECT DownloadedChapter.* FROM DownloadedChapter
+WHERE mangaId = ?
+ORDER BY chapter ASC;
+
+selectDownloadedChapterById:
+SELECT DownloadedChapter.* FROM DownloadedChapter
+WHERE combinedId = ?;
+
+selectLastReadPage:
+SELECT DownloadedChapter.lastReadPage FROM DownloadedChapter
+WHERE combinedId = ?;
+
+updateLastReadPage:
+UPDATE DownloadedChapter
+SET lastReadPage = ?
+WHERE combinedId = ?;
+
+selectIfChapterRead:
+SELECT DownloadedChapter.read FROM DownloadedChapter
+WHERE combinedId = ?;
+
+updateIfChapterRead:
+UPDATE DownloadedChapter
+SET read = ?
+WHERE combinedId = ?;
+
+updateIfChapterFilesDownloaded:
+UPDATE DownloadedChapter
+SET filesDownloaded = ?
+WHERE combinedId = ?;
+
+deleteDownloadedManga:
+DELETE FROM DownloadedManga WHERE id = ?;
+
+deleteDownloadedChapter:
+DELETE FROM DownloadedChapter WHERE combinedId = ?;
