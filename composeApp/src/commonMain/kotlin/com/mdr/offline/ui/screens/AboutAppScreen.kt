@@ -128,12 +128,12 @@ private fun ScreenContent() {
             text = "Project is available on github:",
             style = MangaDexTheme.typography.body
         )
-//        TextButton(onClick = { uriHandler.openUri("") }) {
-//            Text(
-//                text = "",
-//                style = MangaDexTheme.typography.body,
-//                textDecoration = TextDecoration.Underline
-//            )
-//        }
+        TextButton(onClick = { uriHandler.openUri("https://github.com/Sheimlly/MDR-Offline") }) {
+            Text(
+                text = "MDR: Offline",
+                style = MangaDexTheme.typography.body,
+                textDecoration = TextDecoration.Underline
+            )
+        }
     }
 }
